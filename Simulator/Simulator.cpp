@@ -1,0 +1,143 @@
+#include<iomanip>
+#include<iostream>
+#include<fstream>
+#include "Simulator.h"
+
+
+
+Simulator::~Simulator()
+{
+	int velicina = dig_kolo_.size();
+		if (!velicina) 
+		{
+			for(int i=0;i<velicina;i++)
+			{
+				dig_kolo_.pop_back();
+			}
+		}
+
+		velicina = vreme_.size();
+		if (!velicina)
+		{
+			for (int i = 0; i < velicina; i++)
+			{
+				vreme_.pop_back();
+			}
+		}
+
+}
+
+void Simulator::loadCircuit(const string& filepath)
+{
+	fstream inputFile(filepath, ios::in);
+
+	//Ovaj posao se delegira novoj klasi jer simulator ne treba da iscitava fajl ili povezuje elemente, jer njega zanima samo ulaz izlaz i kako protice vreme
+	
+	Citanje* citaj = new Citanje(inputFile, dig_kolo_, vreme_trajanja_, broj_elem_, vreme_);
+	
+	inputFile.close();
+
+	delete citaj;
+
+	nadjiUlaze();
+	srediVreme();
+
+}
+
+void Simulator::simulate(const string& filepath)
+{	
+	//Ovde se stvara novi objekat klase koja ce vrsiti upisivanje u fajl jer je to opet posao koji ne treba da obavlja simulator
+	Ispis* ispis=new Ispis();
+	
+	if (izlazi_.empty()) 
+	{
+		throw;
+	}
+
+	//Ova petlja za svaki izlaz koji postoji pravi izlazni fajl u koji upisuje kad i kakva se promena desila vise o tome sta je potrebno ispisati naci u specifikaciji zadataka
+	for (Element* izlaz : izlazi_) 
+	{   
+	
+		//U svakoj iteraciji kroz vremenske trenutke se menja ako je potrebno vrednost generatora pocev od 0[us] 
+
+		for (int i = 0; i < vreme_.size(); i++)
+		{
+			otkucajVreme(vreme_[i]);
+			ispis->vrednostNaIzlazu(izlaz,vreme_[i]);
+        
+		}
+
+		//Upis prikupljenih rezultata u fajl
+		ispis->kreirajNoviFajl(filepath,izlaz->vratiId());
+
+		//Mora se isprazniti vector ako nije prazan
+		ispis->isprazniVektore();
+	}
+	
+
+}
+
+void Simulator::otkucajVreme(float trenutak)
+{
+	//Ova  metoda u kriticnim trenucima prolazi kroz sve generatore i ako je potrebno menja vrednost izlaznog signala
+
+	for (int i=0;i<dig_kolo_.size();i++) 
+	{   
+		//Ispituje se da li je element generator, a onda mu i promeni vrednost, TREBA DODATI USLOV AKO SE DODA NOVI GENERATOR
+		
+		if (dig_kolo_[i]->vratiTip() == TAKT || dig_kolo_[i]->vratiTip() == RUCNI /*||dig_kolo_[i]->vratiTip == NOVITIP */) 
+		{   
+		    //Za dalju implementaciju metode promeni vrednost uci u Element.h
+			dig_kolo_[i]->promeniVrednost(trenutak);
+		}
+	}
+}
+
+void Simulator::srediVreme()
+{
+	//Ispitujem da li  neki od generatora menja svoju vrednost na samom pocetku vremena sto bi bilo 0[us], a i da nema promene potrebno mi je da u prvom redu fajla ispisem pocetno stanj tako za to sluzi ovo naknadno upisivanje nule
+	bool ima_nulu = false;
+	for (int i = 0; i < vreme_.size(); i++) 
+	{
+		if (vreme_[i] == 0) 
+		{
+			ima_nulu = true;
+		}
+
+		if (ima_nulu)
+		{
+			vreme_.push_back(0);
+			break;
+		}
+	}
+
+	//Ova petlja se koristi da bi se vreme sortiralo,inace je klasican sot slozenosti O(n^2)
+
+	for (int i = 0; i < vreme_.size() - 1; i++) 
+	{
+		for (int j = i + 1; j < vreme_.size(); j++)
+		{
+			if (vreme_[i] > vreme_[j])
+			{
+				float t = vreme_[i];
+				vreme_[i] = vreme_[j];
+				vreme_[j] = t;
+			}
+
+		}
+
+    }
+}
+
+void Simulator::nadjiUlaze() 
+{
+	//Ova petlja prolazi kroz sve elemente u digitalnom kolu i nalazi izlaze(SONDE), a zatim ih stavlja u vector  
+
+	for (Element* element:dig_kolo_) 
+	{
+		if (element->vratiTip() == SONDA) 
+		{
+			izlazi_.push_back(element);
+		}
+	}
+}
