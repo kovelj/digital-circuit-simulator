@@ -4,7 +4,7 @@
 
 void test() {
 	// IZMENITI SADRZAJ UNUTAR '{' i '}' DA BISTE POKRETALI ZELJENI SKUP TESTOVA
-	int test_numbers[] = { 0};
+	int test_numbers[] = {5};
 	std::vector<int> test_vector(test_numbers, test_numbers + sizeof(test_numbers) / sizeof(int));
 	try {
 		Simulator simulator;

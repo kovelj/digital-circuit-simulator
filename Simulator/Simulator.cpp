@@ -64,7 +64,7 @@ void Simulator::simulate(const string& filepath)
 		{
 			otkucajVreme(vreme_[i]);
 			ispis->vrednostNaIzlazu(izlaz,vreme_[i]);
-        
+			resetujKolo();
 		}
 
 		//Upis prikupljenih rezultata u fajl
@@ -72,6 +72,8 @@ void Simulator::simulate(const string& filepath)
 
 		//Mora se isprazniti vector ako nije prazan
 		ispis->isprazniVektore();
+
+		
 	}
 	
 
@@ -127,6 +129,14 @@ void Simulator::srediVreme()
 		}
 
     }
+}
+
+void Simulator::resetujKolo()
+{
+	for (Element* element : dig_kolo_) 
+	{
+		element->resetuj();
+	}
 }
 
 void Simulator::nadjiUlaze() 

@@ -19,6 +19,7 @@ public:
 	void nadjiUlaze();
 	void otkucajVreme(float );
 	void srediVreme();
+	void resetujKolo();
 	
 private:
 	//Pitanje vezano za jednoobraznost koda da li i ovo da drzim kao vector ili kao listu

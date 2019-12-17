@@ -2,7 +2,7 @@
 const int Period = 2;
 
 
-RucniGen::RucniGen(fstream& inputFile, vector<float>& vreme, float trajanje, int id, int tip) :Element(id, tip, 0,0)
+RucniGen::RucniGen(fstream& inputFile, vector<float>& vreme, float trajanje, int id, int tip) :Element(id, tip, 0,0,0)
 {
 	float promena = 0;
 	if (!vremenski_tren_.empty())
@@ -80,17 +80,15 @@ void RucniGen::promeniVrednost(float promena)
 	{
 		if (vremenski_tren_[i] == promena)
 		{
+			vrednost_ = !vrednost_;
 			nasao = true;
 		}
 		i++;
 	}
-	if (nasao)
-	{
-		!vrednost_;
-	}
+	
 }
 
-TaktGen::TaktGen(fstream& inputFile,vector<float>& vreme,float trajanje ,int id,int tip) :Element(id,tip,0,0)
+TaktGen::TaktGen(fstream& inputFile,vector<float>& vreme,float trajanje ,int id,int tip) :Element(id,tip,0,0,0)
 {
 	inputFile >>frekvencija_;
 	float korak = 1/ (frekvencija_ * Period);
@@ -141,13 +139,15 @@ void TaktGen::promeniVrednost(float promena)
 	int i = 0;
 	while (!nasao && i < vremenski_tren_.size()) 
 	{
-		if (vremenski_tren_[i] == promena) 
+		if (vremenski_tren_[i] == promena)
 		{
+			vrednost_=!vrednost_;
 			nasao = true;
+			
 		}
-		if (nasao) 
+		else 
 		{
-			!vrednost_;
+			i++;
 		}
 	}
 
@@ -155,7 +155,7 @@ void TaktGen::promeniVrednost(float promena)
 }
 
 
-IliKolo::IliKolo(fstream& inputFile, int id,int tip) :Element(id, tip,2,0)
+IliKolo::IliKolo(fstream& inputFile, int id,int tip) :Element(id, tip,2,0,0)
 {
 	inputFile >> broj_pinova_;
 	for (int i = 0; i < broj_pinova_; i++)
@@ -178,7 +178,7 @@ void Element::povezi(int pin, Element* ulaz)
 }
 
 
-IKolo::IKolo(fstream& inputFile, int id,int tip) :Element(id, tip,2,0)
+IKolo::IKolo(fstream& inputFile, int id,int tip) :Element(id, tip,2,0,0)
 {
 	inputFile >> broj_pinova_;
 	for (int i = 0; i < broj_pinova_; i++)
@@ -189,7 +189,7 @@ IKolo::IKolo(fstream& inputFile, int id,int tip) :Element(id, tip,2,0)
 
 
 
-NeKolo::NeKolo(fstream& inputFile, int id,int tip) :Element(id, tip,1,0)
+NeKolo::NeKolo(fstream& inputFile, int id,int tip) :Element(id, tip,1,0,0)
 {
 	for (int i = 0; i < broj_pinova_; i++)
 	{
@@ -200,7 +200,7 @@ NeKolo::NeKolo(fstream& inputFile, int id,int tip) :Element(id, tip,1,0)
 
 
 
-Sonda::Sonda(int id, int tip) :Element(id, tip, 1,0) 
+Sonda::Sonda(int id, int tip) :Element(id, tip, 1,0,0) 
 {
 	for (int i = 0; i < broj_pinova_; i++)
 	{
@@ -210,7 +210,7 @@ Sonda::Sonda(int id, int tip) :Element(id, tip, 1,0)
 }
 
 
-Element::Element(int id, int tip,int podrazumevano,int neispitan):id_(id),broj_pinova_(podrazumevano),vrednost_(0),frekvencija_(0),neispitan_ulaz_(0)
+Element::Element(int id, int tip,int podrazumevano,int neispitan,int broj_prolazaka=0):id_(id),broj_pinova_(podrazumevano),vrednost_(0),frekvencija_(0),broj_prolazaka_(broj_prolazaka)
 {
 	
 	switch (tip) 
@@ -240,12 +240,26 @@ int Element::brojPinova()
 
 bool Element::vecObidjen()
 {
-	return broj_pinova_==sinovi_.size()-1;
+	if (broj_prolazaka_ == sinovi_.size())
+	{
+		return true;
+	}
+	else 
+	{
+		return false;
+	}
 }
 
 int Element::vratiId()
 {
 	return id_;
+}
+
+void Element::resetuj()
+{
+	if(tip_!=RUCNI && tip_ != TAKT)
+	vrednost_ = 0;
+	broj_prolazaka_ = 0;
 }
 
 
@@ -270,16 +284,15 @@ float Element::vratiFrekv()
 
 void Element::promeniVrednost(float)
 {
-	!vrednost_;
+	vrednost_ = !vrednost_;;
 }
 
 Element* Element::vratiNeispitanUlaz()
 {
-	if (sinovi_[neispitan_ulaz_] != nullptr)
+	if (sinovi_.size()!=broj_prolazaka_)
+
 	{
-		
-		return sinovi_[neispitan_ulaz_++];
+		return sinovi_[broj_prolazaka_++];
 	}
-	else throw;
 }
 

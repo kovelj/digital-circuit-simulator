@@ -21,7 +21,7 @@ void Ispis::isprazniVektore()
 
 		for (int i = 0; i < velicina; i++)
 		{
-			vreme_promene_.pop_back();
+			promena_.pop_back();
 		}
 	}
 }
@@ -76,50 +76,49 @@ void Ispis::vrednostNaIzlazu(Element* koren,float vreme_promene)
 		throw;
 	}
 
-	while (!stek_cvorova_.empty() || cvor != nullptr) 
+	while (!stek_cvorova_.empty() || (cvor!=nullptr)/* && cvor->vratiTip()!=NOVITIP*/)
 	{
 		//Pitati ADRIANA STA DA SE RADI U SLUCAJU DA CITAVO KOLO NIJE POVEZANO
 		
 		//U slucaju da je cvor nije generator desice se prolazak kroz sinove ne obradjene
-		if (cvor != nullptr && cvor->vecObidjen() && cvor->vratiTip()!=RUCNI && cvor->vratiTip() != TAKT/* && cvor->vratiTip()!=NOVITIP*/)
+		if (cvor!=nullptr &&( cvor->vratiTip()!=RUCNI && cvor->vratiTip() != TAKT)/* && cvor->vratiTip()!=NOVITIP*/)
 		{
 			//Na stack se stavlja ne obradjen cvor i uzima njegov prvi ne obradjeni sin
 			stek_cvorova_.push(cvor);
 			cvor = cvor->vratiNeispitanUlaz();
 		}
 
+		//Ovde se ulzai ako je elemen generator koji to problem izaziva
 		else
 		{
-			//Ako sam dosao do generatora onda stavljam njegovu vrednost na stack vrednosti 
-			
-			stek_vrednosti_.push(cvor->vratiVrednost());
+			//Ako sam dosao do generatora onda stavljam njegovu vrednost na stack vrednosti
+			if (cvor != nullptr)
+			{
+				stek_vrednosti_.push(cvor->vratiVrednost());
+			}
+			//Sada se vracam na poslednji uneti cvor na stacku i ulazim u prvog neobradjenog sina
 
-			//Sada se vracam na poslednji uneti cvor na stacku i ulazim u prvog neobrajenog sina
-
-			Element* poslednjiUneti = stek_cvorova_.top()->vratiNeispitanUlaz();
+			Element* poslednjiUneti = stek_cvorova_.top();
 			
 			//Ako taj sin nije obradjen i ako postoji i nije generator onda se on dodaje na stack cvorova
 
-			if (poslednjiUneti!= nullptr && poslednjiUneti->vratiTip() != RUCNI && poslednjiUneti->vratiTip() != RUCNI && !poslednjiUneti->vecObidjen() ) 
+			if (!poslednjiUneti->vecObidjen() )
 			{
-				cvor = poslednjiUneti;
+				cvor = poslednjiUneti->vratiNeispitanUlaz();
 			}
 
-			//Ako je 
-			else if(poslednjiUneti->vratiTip() != RUCNI && poslednjiUneti->vratiTip() != TAKT)
-			{
-				stek_vrednosti_.push(poslednjiPoseceni->vratiVrednost());
-			}
+			//Ako su svi sinovi obidjeni
+			
 			else if (poslednjiUneti->vecObidjen()) 
 			{
 				izracunajMedjurezultat(poslednjiUneti);
-				stek_vrednosti_.pop();
-			}
-			else 
-			{
-				throw;
+				stek_cvorova_.pop();
+				cvor = nullptr;
+				
 			}
 		}
+
+		//Mislim da mora da se ocisti sva polja koja ucestvuju u prolasku kroz stablo jer inace necu moci da prolazim kad se napune
 	}
 
 	//Sada je potrebno da se vrednost dobijena u sondi upise u vector rezultata kao i vreme promene ako je do nje uopste doslo
@@ -135,26 +134,38 @@ void Ispis::kreirajNoviFajl(const string& filepath,int id)
 	
 	int pozicija = filepath.length() - 4;
 	string idSonde = to_string(id);
-	novo_ime.insert(pozicija,+"_"+ id);
+
+	//Ovde se sada ubacuje novi deo imena izlaznog stringa
+	novo_ime.insert(pozicija,+"_"+ idSonde);
+
 
 	fstream izlazni_fajl(novo_ime,ios::out);
 	
 	int i = 0;
 	bool nasao = false;
-	while (i<promena_.size() && promena_[i]!=1)
+	
+	//Sada zelim da nadjem indeks prvog elementa kada se desila promena na jedinicu i da onda od tog indeksa unosim 
+	while (!nasao && i < promena_.size()) 
 	{
-		i++;
+		if (promena_[i] == 1) 
+		{
+			nasao = true;
+		}
+		else
+		{
+			i++;
+		}
 	}
 
 	for (i; i < vreme_promene_.size(); i++) 
 	{
 		if (promena_[i]== 1) 
 		{
-			izlazni_fajl << "0 -> 1: " << vreme_promene_[i] << " [us] " << endl;
+			izlazni_fajl << "0 -> 1: " << vreme_promene_[i] <<"us"<<endl;
 		}
 		else 
 		{
-			izlazni_fajl << "1 -> 0: " << vreme_promene_[i] << " [us] " << endl;
+			izlazni_fajl << "1 -> 0: " << vreme_promene_[i] << "us" << endl;
 		}
 	}
 	
@@ -171,10 +182,10 @@ void Ispis::upisiPirkupljeniRezultat(float  vreme )
 		if (promena_[promena_.size() - 1] != stanje) 
 		{
 			promena_.push_back(stanje);
+			vreme_promene_.push_back(vreme);
 		}
 	}
 
-	//
 	else 
 	{
 		promena_.push_back(stanje);
