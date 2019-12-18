@@ -8,7 +8,7 @@ using namespace std;
 using namespace std;
 class Citanje {
 public:
-	Citanje(fstream&, vector<Element*>& dig_kolo_,float&,int&,vector<float>&);
+	Citanje(fstream&, vector<Element*>& dig_kolo_,float&,int&,vector<float>&,vector<Element*>&);
 
 	void poveziKolo(fstream&,vector<Element*>&,int);
 	

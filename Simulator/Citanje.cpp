@@ -1,12 +1,14 @@
 #include "Citanje.h"
 
-Citanje::Citanje(fstream& inputFile, vector<Element*>& dig_kolo_,float&vreme_trajanja_,int& broj_elem_,vector<float>& vreme_)
+Citanje::Citanje(fstream& inputFile, vector<Element*>& dig_kolo_,float&vreme_trajanja_,int& broj_elem_,vector<float>& vreme_,vector<Element*>& izlazi)
 {
+	//Ako mi dig_kolo_ nije prazno, a nisam stigao do kraja programa pa nisam zvao destruktor, shodno tome ja ih ovde praznim ako vec nisu 
 	if (!dig_kolo_.empty())
 	{
-		int velicina=dig_kolo_.size();
+		int velicina = dig_kolo_.size();
 		for (int i=0;i<velicina;i++)
 		{
+			delete dig_kolo_[velicina-i-1];
 			dig_kolo_.pop_back();
 		}
 	}
@@ -19,14 +21,35 @@ Citanje::Citanje(fstream& inputFile, vector<Element*>& dig_kolo_,float&vreme_tra
 			vreme_.pop_back();
 		}
 	}
+
+	if (!izlazi.empty())
+	{
+		int velicina = izlazi.size();
+		for (int i = 0; i < velicina; i++)
+		{
+			izlazi[velicina - i - 1] = nullptr;
+			delete izlazi[velicina - i - 1];
+			izlazi.pop_back();
+		}
+	}
+
+	//Ovo radim zato sto mi je potrebno da ispitam u nultoom trenutku svakako,a moze se desiti da nijedan od generatora nema ovo kao kriticni trenutak
+	vreme_.push_back(0);
+
+	//Kao dobro praksa onda ja cu vratiti staticka polja kao u destruktoru vratiti na pocetnu vrednost
+
 	vreme_trajanja_ = 0;
 	broj_elem_ = 0;
-	//fstream inputFile(filepath, ios::in);
+	
+
 	inputFile.peek();
 	inputFile >> vreme_trajanja_;
+	
 	inputFile.peek();
 	inputFile >> broj_elem_;
 
+
+	//Ova petlja cita drugi deo fajla koji sadrzi elemente sa njihovom tehnickom specifikacijom ako je, takodje uociti polimorfizam jer se posao iscitavanja delegira odgovarajucem elementu
 	int i = 0;
 	while (i<broj_elem_)
 	{
@@ -47,6 +70,7 @@ Citanje::Citanje(fstream& inputFile, vector<Element*>& dig_kolo_,float&vreme_tra
 		i++;
 	}
 
+	//Metoda koja povezuje kolo, nakon sto se ono ucita
 	poveziKolo(inputFile,dig_kolo_,broj_elem_);
 	
 
@@ -55,8 +79,7 @@ Citanje::Citanje(fstream& inputFile, vector<Element*>& dig_kolo_,float&vreme_tra
 
 void Citanje::poveziKolo(fstream& inputFile, vector<Element*>& dig_kolo_,int broj_elem_)
 {
-	//Ova metoda zaravo strvara stablo//At least i hope
-	//int i = 0;
+	//Metoda koja povezuje stablo,tako sto prolazi kroz niz elemenata
 	while (inputFile.peek()!=EOF)
 	{
 		int id1 = 0; int id2 = 0; int pin = 0;

@@ -15,7 +15,7 @@ public:
 	void isprazniVektore();
 	void izracunajMedjurezultat(Element *);
 	void vrednostNaIzlazu(Element*,float );
-	void kreirajNoviFajl(const string&,int);
+	void kreirajNoviFajl(const string&,int,float);
 	void upisiPirkupljeniRezultat(float);
 	
 private:

@@ -12,7 +12,7 @@ using namespace std;
 using namespace std;
 class Simulator {
 public:
-	Simulator() :broj_elem_(0),vreme_trajanja_(0){}
+	Simulator();
 	~Simulator();
 	void loadCircuit(const string&);
 	void simulate(const string& );
@@ -20,6 +20,7 @@ public:
 	void otkucajVreme(float );
 	void srediVreme();
 	void resetujKolo();
+	void resetujGeneratore();
 	
 private:
 	//Pitanje vezano za jednoobraznost koda da li i ovo da drzim kao vector ili kao listu

@@ -76,6 +76,8 @@ void RucniGen::promeniVrednost(float promena)
 	
 	bool nasao = false;
 	int i = 0;
+
+	//Izlazi se iz petlje ako je nadjena odgovarajuca vrednost promene  u suprotnom ide do kraja
 	while (!nasao && i<vremenski_tren_.size()) 
 	{
 		if (vremenski_tren_[i] == promena)
@@ -93,22 +95,26 @@ TaktGen::TaktGen(fstream& inputFile,vector<float>& vreme,float trajanje ,int id,
 	inputFile >>frekvencija_;
 	float korak = 1/ (frekvencija_ * Period);
 	float promena = korak;
-	float proizvod = korak * frekvencija_ *  Period;
-	//Ovo mi je za sad najelegantnije resenje koje imam
-	if (vreme.empty()) 
+
+	//Ovo mi je za sad najelegantnije resenje koje imam, i zasniva se na tome da ako je niz vreme prazan ja ga onda samo napunim sa vrednostima promene
+	if (vreme.size()==1) 
 	{
-		while (promena <= (float)trajanje) 
+		//Bez trenutka koji je jedank vremenu zavrsetka simulacije
+		while (promena <trajanje) 
 		{
 			vremenski_tren_.push_back(promena);
 			vreme.push_back(promena);
 			promena+= korak;
 		}
 	}
+	//Usuprotnom ako vreme nije prazno onda se upisuju ne ponovljene vrednosti
 	else 
 	{
-
-		while (promena <= trajanje) 
+		//While petlja koja mi prolazi kroz sve trenutke promena ne ukljucujuci vreme kada se zavrsava
+		while (promena < trajanje) 
 		{
+			vremenski_tren_.push_back(promena);
+			//for petlja koja trazi da li ima vec isti trenutak ucitan
 			bool nasao = false;
 			for (int i = 0; i < vreme.size(); i++) 
 			{
@@ -117,6 +123,8 @@ TaktGen::TaktGen(fstream& inputFile,vector<float>& vreme,float trajanje ,int id,
 					nasao = true;
 				}
 			}
+
+			//Ako nije nadjen duplikat onda se ubaci vrednost na kraj
 			if (!nasao) 
 			{
 				vreme.push_back(promena);
@@ -202,6 +210,7 @@ NeKolo::NeKolo(fstream& inputFile, int id,int tip) :Element(id, tip,1,0,0)
 
 Sonda::Sonda(int id, int tip) :Element(id, tip, 1,0,0) 
 {
+	//Inicijalizuje se niz pinova sa nullptr
 	for (int i = 0; i < broj_pinova_; i++)
 	{
 		sinovi_.push_back(nullptr);
@@ -229,9 +238,13 @@ Element::~Element()
 	int velicina = sinovi_.size();
 	for (int i = 0; i <velicina; i++)
 	{
+		sinovi_[velicina-1-i] = nullptr;
+		delete sinovi_[velicina-1-i];
 		sinovi_.pop_back();
 	}
 }
+
+
 
 int Element::brojPinova()
 {
@@ -240,6 +253,7 @@ int Element::brojPinova()
 
 bool Element::vecObidjen()
 {
+	//Ispituje da li je jedan cvor iscitan do kraja
 	if (broj_prolazaka_ == sinovi_.size())
 	{
 		return true;
@@ -255,11 +269,19 @@ int Element::vratiId()
 	return id_;
 }
 
-void Element::resetuj()
+void Element::resetujElemente()
 {
 	if(tip_!=RUCNI && tip_ != TAKT)
 	vrednost_ = 0;
 	broj_prolazaka_ = 0;
+}
+
+void Element::resetujGenratore()
+{
+	if (tip_ == RUCNI || tip_ == TAKT) 
+	{
+		vrednost_ = 0;
+	}
 }
 
 

@@ -18,7 +18,8 @@ public:
 	int brojPinova();
 	bool vecObidjen();
 	int vratiId();
-	void resetuj();
+	void resetujElemente();
+	void resetujGenratore();
 	void povezi(int pin,Element*);
 	int vratiVrednost();
 	Tip vratiTip();

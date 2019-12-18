@@ -38,9 +38,9 @@ void Ispis::izracunajMedjurezultat(Element * element)
 		{
 			rezultat &= stek_vrednosti_.top();
 			stek_vrednosti_.pop();
-			stek_vrednosti_.push(rezultat);
-
-		}
+			
+        }
+		stek_vrednosti_.push(rezultat);
 
 	}
 
@@ -52,16 +52,16 @@ void Ispis::izracunajMedjurezultat(Element * element)
 		{
 			rezultat |= stek_vrednosti_.top();
 			stek_vrednosti_.pop();
-			stek_vrednosti_.push(rezultat);
 
 		}
+		stek_vrednosti_.push(rezultat);
 	}
 	
 	if (tip == NE) 
 	{
 		int vrednost = stek_vrednosti_.top();
 		stek_vrednosti_.pop();
-		!vrednost;
+		vrednost=!vrednost;
 		stek_vrednosti_.push(vrednost);
 	}
 }
@@ -127,7 +127,7 @@ void Ispis::vrednostNaIzlazu(Element* koren,float vreme_promene)
   
 }
 
-void Ispis::kreirajNoviFajl(const string& filepath,int id)
+void Ispis::kreirajNoviFajl(const string& filepath,int id,float vreme_trajanja)
 {
 	//Kreiranje modifikovanog imena za izlazni fajl
 	string novo_ime = filepath;
@@ -163,7 +163,7 @@ void Ispis::kreirajNoviFajl(const string& filepath,int id)
 		{
 			izlazni_fajl << "0 -> 1: " << vreme_promene_[i] <<"us"<<endl;
 		}
-		else 
+		else if(promena_[i] == 0)
 		{
 			izlazni_fajl << "1 -> 0: " << vreme_promene_[i] << "us" << endl;
 		}

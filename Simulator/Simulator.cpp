@@ -5,6 +5,11 @@
 
 
 
+Simulator::Simulator():vreme_trajanja_(0),broj_elem_(0)
+{
+	
+}
+
 Simulator::~Simulator()
 {
 	int velicina = dig_kolo_.size();
@@ -33,7 +38,7 @@ void Simulator::loadCircuit(const string& filepath)
 
 	//Ovaj posao se delegira novoj klasi jer simulator ne treba da iscitava fajl ili povezuje elemente, jer njega zanima samo ulaz izlaz i kako protice vreme
 	
-	Citanje* citaj = new Citanje(inputFile, dig_kolo_, vreme_trajanja_, broj_elem_, vreme_);
+	Citanje* citaj = new Citanje(inputFile, dig_kolo_, vreme_trajanja_, broj_elem_, vreme_,izlazi_);
 	
 	inputFile.close();
 
@@ -49,15 +54,12 @@ void Simulator::simulate(const string& filepath)
 	//Ovde se stvara novi objekat klase koja ce vrsiti upisivanje u fajl jer je to opet posao koji ne treba da obavlja simulator
 	Ispis* ispis=new Ispis();
 	
-	if (izlazi_.empty()) 
-	{
-		throw;
-	}
 
 	//Ova petlja za svaki izlaz koji postoji pravi izlazni fajl u koji upisuje kad i kakva se promena desila vise o tome sta je potrebno ispisati naci u specifikaciji zadataka
 	for (Element* izlaz : izlazi_) 
 	{   
 	
+		resetujGeneratore();
 		//U svakoj iteraciji kroz vremenske trenutke se menja ako je potrebno vrednost generatora pocev od 0[us] 
 
 		for (int i = 0; i < vreme_.size(); i++)
@@ -68,7 +70,7 @@ void Simulator::simulate(const string& filepath)
 		}
 
 		//Upis prikupljenih rezultata u fajl
-		ispis->kreirajNoviFajl(filepath,izlaz->vratiId());
+		ispis->kreirajNoviFajl(filepath,izlaz->vratiId(),vreme_trajanja_);
 
 		//Mora se isprazniti vector ako nije prazan
 		ispis->isprazniVektore();
@@ -97,23 +99,7 @@ void Simulator::otkucajVreme(float trenutak)
 
 void Simulator::srediVreme()
 {
-	//Ispitujem da li  neki od generatora menja svoju vrednost na samom pocetku vremena sto bi bilo 0[us], a i da nema promene potrebno mi je da u prvom redu fajla ispisem pocetno stanj tako za to sluzi ovo naknadno upisivanje nule
-	bool ima_nulu = false;
-	for (int i = 0; i < vreme_.size(); i++) 
-	{
-		if (vreme_[i] == 0) 
-		{
-			ima_nulu = true;
-		}
-
-		if (ima_nulu)
-		{
-			vreme_.push_back(0);
-			break;
-		}
-	}
-
-	//Ova petlja se koristi da bi se vreme sortiralo,inace je klasican sot slozenosti O(n^2)
+	//Ova petlja se koristi da bi se vreme sortiralo,inace je klasican sort slozenosti O(n^2)
 
 	for (int i = 0; i < vreme_.size() - 1; i++) 
 	{
@@ -135,14 +121,22 @@ void Simulator::resetujKolo()
 {
 	for (Element* element : dig_kolo_) 
 	{
-		element->resetuj();
+		element->resetujElemente();
+	}
+}
+
+void Simulator::resetujGeneratore()
+{
+	for (Element* element : dig_kolo_)
+	{
+		element->resetujGenratore();
 	}
 }
 
 void Simulator::nadjiUlaze() 
 {
 	//Ova petlja prolazi kroz sve elemente u digitalnom kolu i nalazi izlaze(SONDE), a zatim ih stavlja u vector  
-
+	
 	for (Element* element:dig_kolo_) 
 	{
 		if (element->vratiTip() == SONDA) 
