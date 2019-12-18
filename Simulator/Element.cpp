@@ -1,31 +1,46 @@
 #include "Element.h"
+#include"Izuzeci.h"
 const int Period = 2;
 
 
 RucniGen::RucniGen(fstream& inputFile, vector<float>& vreme, float trajanje, int id, int tip) :Element(id, tip, 0,0,0)
 {
 	float promena = 0;
+	//Mora se isprazniti vector ako je nova iteracija
 	if (!vremenski_tren_.empty())
 	{
 		for (int i = 0; i < vremenski_tren_.size(); i++)
 		{
 			vremenski_tren_.pop_back();
 		}
-	}
-	//Ovo puni niz vremenski trenuci pormenama 
+	} 
+	//Ovo puni niz vremenski trenuci promenama
+
 	int velicina = vreme.size();
 		while(inputFile.peek()!='\n')
 		{
 			float korak;
 			inputFile >> korak;
+
+			if (korak < 0) 
+			{
+				throw NegativanBroj("Ne moze generator da menja vrednosti unazad!!!");
+			}
+
 			promena += korak;
-			if (korak > trajanje || korak <= 0) throw;
+
+			if (korak > trajanje || korak <= 0)
+			{
+				throw Prekoracenje("Ne moze biti toliki korak jer on okoncava iscitavanje fajla do kraja reda!!!");
+;
+			}
 			
 			else if(promena<trajanje)
 			{
 				vremenski_tren_.push_back(promena);
 			}
-			else if(velicina == 0) 
+			//Ako se vector vreme_ prvi put puni jer obavezno sadrzi nulu
+			else if(velicina == 1) 
 			{
 				vreme.push_back(promena);
 			}
@@ -134,6 +149,15 @@ TaktGen::TaktGen(fstream& inputFile,vector<float>& vreme,float trajanje ,int id,
 	}
 }
 
+TaktGen::~TaktGen()
+{
+	int velicina = vremenski_tren_.size();
+	for (int i = 0; i < velicina; i++) 
+	{
+		vremenski_tren_.pop_back();
+	}
+}
+
 float TaktGen::vratiFrekv()
 {
 	return frekvencija_;
@@ -166,6 +190,11 @@ void TaktGen::promeniVrednost(float promena)
 IliKolo::IliKolo(fstream& inputFile, int id,int tip) :Element(id, tip,2,0,0)
 {
 	inputFile >> broj_pinova_;
+	if (broj_pinova_ <= 0) 
+	{
+		throw NegativanBroj("Uneli ste negativan broj kao broj ulaza!!!");
+	}
+
 	for (int i = 0; i < broj_pinova_; i++)
 	{
 		sinovi_.push_back(nullptr);
@@ -181,6 +210,10 @@ void Element::povezi(int pin, Element* ulaz)
 		{
 			sinovi_[pin] = ulaz;
 		}
+	}
+	else 
+	{
+		throw Prekoracenje("Izvrsili ste prekoracenje zahtevani ulaz ne postoji!!!");
 	}
 
 }
@@ -235,6 +268,7 @@ Element::Element(int id, int tip,int podrazumevano,int neispitan,int broj_prolaz
 
 Element::~Element()
 {
+	//Ova petlja mi prvo razvezee celo stablo, a onda izbrise sve elemente
 	int velicina = sinovi_.size();
 	for (int i = 0; i <velicina; i++)
 	{
@@ -242,6 +276,15 @@ Element::~Element()
 		delete sinovi_[velicina-1-i];
 		sinovi_.pop_back();
 	}
+
+	//Vracanje svih vrednosti na pocetne
+	id_=0;
+	vrednost_=0;
+	frekvencija_;
+    broj_pinova_ = 0;
+	broj_prolazaka_ = 0;
+
+
 }
 
 

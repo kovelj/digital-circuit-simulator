@@ -1,5 +1,8 @@
 #ifndef ELEMENT_H
 #define ELEMENT_H
+
+#include"Izuzeci.h"
+
 #include<fstream>
 #include<iostream>
 #include<string>
@@ -8,8 +11,11 @@
 
 enum Tip { SONDA, TAKT, RUCNI, NE, I, ILI };
 using namespace std;
+
 class Element {
+
 public:
+
 	Element(int id,int tip,int podrazumevano,int neispitan,int broj_prolazaka_);
 	//Element(const Element&);
 	//Element( Element&&);
@@ -26,7 +32,9 @@ public:
 	virtual float vratiFrekv();
 	virtual void promeniVrednost(float=0);
 	Element* vratiNeispitanUlaz();
+
 protected:
+
 	Tip tip_;
 	int id_;
 	int vrednost_;
@@ -38,59 +46,65 @@ protected:
 
 
 class TaktGen :public Element {
+
 public:
+
 	TaktGen(fstream& inputFile, vector<float>& , float,int,int);
+	~TaktGen();
+
 	float vratiFrekv();
 	virtual void promeniVrednost(float=0) override;
 
 private:
-	
+
 	vector<float> vremenski_tren_;
 	
 };
 
 class RucniGen :public Element {
+
 public:
+
 	RucniGen(fstream& inputFile, vector<float>&, float, int,int);
 	~RucniGen();
+
 	virtual void promeniVrednost(float=0) override;
 
 private:
+
 	vector<float> vremenski_tren_;
 
 };
 
 
 class IliKolo :public Element {
-public:
-	IliKolo(fstream& inputfile, int,int);
 
-private:
-	
+public:
+
+	IliKolo(fstream& inputfile, int,int);
 
 };
 
 class IKolo :public Element {
+
 public:
+
 	IKolo(fstream& inputFile, int,int);
-	
-private:
-	
-	
 	
 };
 
 class NeKolo :public Element {
+
 public:
+
 	NeKolo(fstream& inputFile, int, int);
 	
-private:
-	
-
 };
 
 class Sonda :public Element {
+
 public:
+
 	Sonda(int id, int tip);
 
 };

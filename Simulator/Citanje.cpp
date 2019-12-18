@@ -1,5 +1,5 @@
 #include "Citanje.h"
-
+#include"Izuzeci.h"
 Citanje::Citanje(fstream& inputFile, vector<Element*>& dig_kolo_,float&vreme_trajanja_,int& broj_elem_,vector<float>& vreme_,vector<Element*>& izlazi)
 {
 	//Ako mi dig_kolo_ nije prazno, a nisam stigao do kraja programa pa nisam zvao destruktor, shodno tome ja ih ovde praznim ako vec nisu 
@@ -41,22 +41,55 @@ Citanje::Citanje(fstream& inputFile, vector<Element*>& dig_kolo_,float&vreme_tra
 	vreme_trajanja_ = 0;
 	broj_elem_ = 0;
 	
+	try 
+	{
+		inputFile.peek();
+		inputFile >> vreme_trajanja_;
+		if (vreme_trajanja_ <= 0)
+		{
+			throw NegativanBroj("Greska usled nedozvoljenog unosa vremena kao negativnog broja,ili vreme trajanja jednako nuli!!!");
+		}
 
-	inputFile.peek();
-	inputFile >> vreme_trajanja_;
-	
-	inputFile.peek();
-	inputFile >> broj_elem_;
-
+		
+		inputFile.peek();
+		inputFile >> broj_elem_;
+		if (broj_elem_ <= 0) 
+		{
+			throw NegativanBroj("Greska usled nedozvoljenog unosa broja elemenata kao negativnog broja,ili jednak nuli!!!");
+		}
+	}
+	catch (NegativanBroj & se) 
+	{
+		cout<<se.what();
+	}
 
 	//Ova petlja cita drugi deo fajla koji sadrzi elemente sa njihovom tehnickom specifikacijom ako je, takodje uociti polimorfizam jer se posao iscitavanja delegira odgovarajucem elementu
 	int i = 0;
-	while (i<broj_elem_)
+	while (i < broj_elem_)
 	{
 		int id; int tip;
+		try
+		{
+			inputFile >> id;
+			inputFile >> tip;
+			if (id < 0)
+			{
+				throw NegativanBroj("Greska uneli ste id kao negativan broj!11");
+			}
+			if (tip != 0 && tip != 1 && tip != 2 && tip != 3 && tip != 4 && tip != 5)
+			{
+				throw NedozvoljenTip("Tip koji ste uneli je nedozvoljen!!!");
+			}
+		}
+		catch (NedozvoljenTip & se)
+		{
+			cout<<se.what();
+		}
 
-		inputFile >> id;
-		inputFile >> tip;
+		catch (NegativanBroj & se)
+		{
+			cout << se.what();
+		}
 
 		switch (tip)
 		{
@@ -82,31 +115,62 @@ void Citanje::poveziKolo(fstream& inputFile, vector<Element*>& dig_kolo_,int bro
 	//Metoda koja povezuje stablo,tako sto prolazi kroz niz elemenata
 	while (inputFile.peek()!=EOF)
 	{
-		int id1 = 0; int id2 = 0; int pin = 0;
-
-		inputFile >> id1; 
-		inputFile >> id2;
-		inputFile >> pin;
-
 		Element* prvi = nullptr;
 		Element* drugi = nullptr;
-		int i = 0;
 
-		while ((!prvi || !drugi) && i < broj_elem_)
+		int id1 = 0; int id2 = 0; int pin = 0;
+
+		try
 		{
-			if (dig_kolo_[i]->vratiId() == id1)
-			{
-				prvi = dig_kolo_[i];
-			}
-			if (dig_kolo_[i]->vratiId() == id2)
-			{
-				drugi = dig_kolo_[i];
-			}
-			i++;
-			
-		}
-		drugi->povezi(pin,prvi);
+			inputFile >> id1;
+			inputFile >> id2;
+			inputFile >> pin;
 
+			if (id1 < 0 || id2 < 0 || pin < 0)
+			{
+				throw NegativanBroj("Greska uneli ste da je ili pin negativa broj ili id elemenata negativan!!!");
+			}
+
+			if (id1 == id2)
+			{
+				throw NepravilnaVeza("Napravili ste povratnu spregu sto je nedozvoljeno!!!");
+			}
+
+			int i = 0;
+
+			while ((!prvi || !drugi) && i < broj_elem_)
+			{
+				if (dig_kolo_[i]->vratiId() == id1)
+				{
+					prvi = dig_kolo_[i];
+				}
+				if (dig_kolo_[i]->vratiId() == id2)
+				{
+					drugi = dig_kolo_[i];
+				}
+				i++;
+
+			}
+
+			if (prvi == nullptr || drugi == nullptr)
+			{
+				throw NepravilnaVeza("Ne postoje elementi koje ovom specifikacim zelite da vezete!!!");
+			}
+
+
+
+
+			drugi->povezi(pin, prvi);
+		}
+		catch (NegativanBroj & se)
+		{
+			cout << se.what();
+		}
+
+		catch (NepravilnaVeza & se)
+		{
+			cout << se.what();
+		}
 
 		prvi = nullptr;
 		drugi = nullptr;

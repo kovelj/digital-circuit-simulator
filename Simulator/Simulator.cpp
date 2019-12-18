@@ -1,14 +1,7 @@
-#include<iomanip>
-#include<iostream>
-#include<fstream>
 #include "Simulator.h"
 
 
-
-Simulator::Simulator():vreme_trajanja_(0),broj_elem_(0)
-{
-	
-}
+Simulator::Simulator():vreme_trajanja_(0),broj_elem_(0) {}
 
 Simulator::~Simulator()
 {
@@ -117,6 +110,7 @@ void Simulator::srediVreme()
     }
 }
 
+//Mozda je ime malo traljavo ali sluzi tome da se logicka kola resetuju nakon svakog novog prolaska, to jest za svaki novi trenutak!
 void Simulator::resetujKolo()
 {
 	for (Element* element : dig_kolo_) 
@@ -125,6 +119,7 @@ void Simulator::resetujKolo()
 	}
 }
 
+//Sluzi tome da se genratori resetuju na nulu pri vrsenju merenja za svaku novu sondu 
 void Simulator::resetujGeneratore()
 {
 	for (Element* element : dig_kolo_)
@@ -143,5 +138,9 @@ void Simulator::nadjiUlaze()
 		{
 			izlazi_.push_back(element);
 		}
+	}
+	if (izlazi_.empty()) 
+	{
+		throw NepravilnaVeza("Ova sema ne sadrzi sonde koje bi prikupljle izlazne signale!!!");
 	}
 }

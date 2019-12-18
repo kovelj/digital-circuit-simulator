@@ -2,6 +2,32 @@
 
 
 
+Ispis::~Ispis()
+{
+	//Vec postoji metoda koja mi cisti vektore pa je samo pozovem
+	isprazniVektore();
+
+	//Iako oni ne mogu na kraju ne mogu biti NE PRAZNI
+	int velicina = stek_cvorova_.size();
+	if (!stek_cvorova_.empty()) 
+	{
+		for (int i = 0; i < velicina; i++) 
+		{
+			stek_cvorova_.pop();
+		}
+	}
+
+	 velicina = stek_vrednosti_.size();
+
+	 if (!stek_vrednosti_.empty())
+	 {
+		 for (int i = 0; i < velicina; i++)
+		 {
+			 stek_vrednosti_.pop();
+		 }
+	 }
+}
+
 void Ispis::isprazniVektore()
 {
 	if (!vreme_promene_.empty() )

@@ -1,17 +1,21 @@
 #ifndef ISPIS_H
 #define ISPIS_H
+
 #include"Element.h"
-#include<fstream>
-#include<iostream>
+
 #include<stack>
-#include<string>
-#include<vector>
+
 
 using namespace std;
+
 class Ispis {
+
 public:
-	//Ovde namerno zelim da imam kopiju imena jer moram da ga modifikuje
-	
+
+	~Ispis();
+
+	//Za ispis mi nije potrebna kopija jer je dovoljna samo jedna njena instanca
+
 	void isprazniVektore();
 	void izracunajMedjurezultat(Element *);
 	void vrednostNaIzlazu(Element*,float );
