@@ -81,6 +81,7 @@ Citanje::Citanje(fstream& inputFile, vector<Element*>& dig_kolo_,float&vreme_tra
 				throw NedozvoljenTip("Tip koji ste uneli je nedozvoljen!!!");
 			}
 		}
+		
 		catch (NedozvoljenTip & se)
 		{
 			cout<<se.what();
