@@ -1,7 +1,5 @@
 #include "Ispis.h"
 
-
-
 Ispis::~Ispis()
 {
 	//Vec postoji metoda koja mi cisti vektore pa je samo pozovem
@@ -9,20 +7,16 @@ Ispis::~Ispis()
 
 	//Iako oni ne mogu na kraju ne mogu biti NE PRAZNI
 	int velicina = stek_cvorova_.size();
-	if (!stek_cvorova_.empty()) 
-	{
-		for (int i = 0; i < velicina; i++) 
-		{
+	if (!stek_cvorova_.empty()) {
+		for (int i = 0; i < velicina; i++) {
 			stek_cvorova_.pop();
 		}
 	}
 
 	 velicina = stek_vrednosti_.size();
 
-	 if (!stek_vrednosti_.empty())
-	 {
-		 for (int i = 0; i < velicina; i++)
-		 {
+	 if (!stek_vrednosti_.empty()) {
+		 for (int i = 0; i < velicina; i++) {
 			 stek_vrednosti_.pop();
 		 }
 	 }
@@ -30,23 +24,18 @@ Ispis::~Ispis()
 
 void Ispis::isprazniVektore()
 {
-	if (!vreme_promene_.empty() )
-	{
+	if (!vreme_promene_.empty()) {
 		int velicina = vreme_promene_.size();
 
-		for (int i = 0; i < velicina; i++) 
-		{
+		for (int i = 0; i < velicina; i++) {
 			vreme_promene_.pop_back();
 		}
-
 	}
 
-	if (!promena_.empty()) 
-	{
+	if (!promena_.empty()) {
 		int velicina = promena_.size();
 
-		for (int i = 0; i < velicina; i++)
-		{
+		for (int i = 0; i < velicina; i++) {
 			promena_.pop_back();
 		}
 	}
@@ -127,7 +116,6 @@ void Ispis::vrednostNaIzlazu(Element* koren,float vreme_promene)
 			Element* poslednjiUneti = stek_cvorova_.top();
 			
 			//Ako taj sin nije obradjen i ako postoji i nije generator onda se on dodaje na stack cvorova
-
 			if (!poslednjiUneti->vecObidjen() )
 			{
 				cvor = poslednjiUneti->vratiNeispitanUlaz();
@@ -153,45 +141,38 @@ void Ispis::vrednostNaIzlazu(Element* koren,float vreme_promene)
   
 }
 
-void Ispis::kreirajNoviFajl(const string& filepath,int id,float vreme_trajanja)
+void Ispis::kreirajNoviFajl(const std::string& filepath, int id, float vreme_trajanja)
 {
 	//Kreiranje modifikovanog imena za izlazni fajl
-	string novo_ime = filepath;
+	std::string novo_ime = filepath;
 	
 	int pozicija = filepath.length() - 4;
-	string idSonde = to_string(id);
+	std::string idSonde = std::to_string(id);
 
 	//Ovde se sada ubacuje novi deo imena izlaznog stringa
 	novo_ime.insert(pozicija,+"_"+ idSonde);
 
-
-	fstream izlazni_fajl(novo_ime,ios::out);
+	std::fstream izlazni_fajl(novo_ime,std::ios::out);
 	
 	int i = 0;
 	bool nasao = false;
 	
 	//Sada zelim da nadjem indeks prvog elementa kada se desila promena na jedinicu i da onda od tog indeksa unosim 
-	while (!nasao && i < promena_.size()) 
-	{
-		if (promena_[i] == 1) 
-		{
+	while (!nasao && i < promena_.size()) {
+		if (promena_[i] == 1) {
 			nasao = true;
 		}
-		else
-		{
+		else {
 			i++;
 		}
 	}
 
-	for (i; i < vreme_promene_.size(); i++) 
-	{
-		if (promena_[i]== 1) 
-		{
-			izlazni_fajl << "0 -> 1: " << vreme_promene_[i] <<"us"<<endl;
+	for (i; i < vreme_promene_.size(); i++) {
+		if (promena_[i]== 1) {
+			izlazni_fajl << "0 -> 1: " << vreme_promene_[i] <<"us"<<std::endl;
 		}
-		else if(promena_[i] == 0)
-		{
-			izlazni_fajl << "1 -> 0: " << vreme_promene_[i] << "us" << endl;
+		else if(promena_[i] == 0) {
+			izlazni_fajl << "1 -> 0: " << vreme_promene_[i] << "us" <<std::endl;
 		}
 	}
 	
@@ -203,21 +184,14 @@ void Ispis::upisiPirkupljeniRezultat(float  vreme )
 	int stanje = stek_vrednosti_.top();
 	stek_vrednosti_.pop();
 	
-	if (!promena_.empty() ) 
-	{
-		if (promena_[promena_.size() - 1] != stanje) 
-		{
+	if (!promena_.empty() ) {
+		if (promena_[promena_.size() - 1] != stanje) {
 			promena_.push_back(stanje);
 			vreme_promene_.push_back(vreme);
 		}
 	}
-
-	else 
-	{
+	else {
 		promena_.push_back(stanje);
 		vreme_promene_.push_back(vreme);
 	}
 }
-
-
-

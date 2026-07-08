@@ -1,22 +1,17 @@
 #include "Simulator.h"
 
-
-void test() {
-	// IZMENITI SADRZAJ UNUTAR '{' i '}' DA BISTE POKRETALI ZELJENI SKUP TESTOVA
-	int test_numbers[] = {0,1,2,3,4,5};
-	std::vector<int> test_vector(test_numbers, test_numbers + sizeof(test_numbers) / sizeof(int));
+void run_tests() {
+	std::vector<int> test_vector = {0,1,2,3,4,5};
 	
-		Simulator simulator;
-		for (int test_number : test_vector) {
-			simulator.loadCircuit("test_" + to_string(test_number) + ".txt");
-			simulator.simulate("test_" + to_string(test_number) + "_output.txt");
-		}
-	
-	
+	Simulator simulator;
+	for (const auto test_number : test_vector) {
+		simulator.loadCircuit("../test/test_" + std::to_string(test_number) + ".txt");
+		simulator.simulate("../test/test_" + std::to_string(test_number) + "_output.txt");
+	}
 }
 
 int main() 
 {
-	test();
+	run_tests();
 	return 0;
 }
